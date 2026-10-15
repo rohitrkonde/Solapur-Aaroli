@@ -44,9 +44,9 @@ textarea{width:100%;min-height:150px;font:inherit;padding:10px;border-radius:8px
 
 <label for="voice">आवाज</label>
 <select id="voice"></select>
-<label for="rate">वेग: <span id="rv">1.3</span></label>
+<label for="rate">वेग: <span id="rv">0.95</span></label>
 <input id="rate" type="range" min="0.6" max="1.4" step="0.05" value="0.95">
-<label for="pitch">सूर: <span id="pv">1.4</span></label>
+<label for="pitch">सूर: <span id="pv">1.1</span></label>
 <input id="pitch" type="range" min="0.6" max="1.6" step="0.05" value="1.1">
 <label for="gap">दोन वेळच्या मधला विराम (सेकंद): <span id="gv">3</span></label>
 <input id="gap" type="range" min="0" max="10" step="1" value="3">
@@ -65,122 +65,48 @@ textarea{width:100%;min-height:150px;font:inherit;padding:10px;border-radius:8px
 </main>
 <script>
 (function(){
-  var synth = window.speechSynthesis, voices = [], running = false, timer = null, runId = 0;
-  var $ = function(id){return document.getElementById(id);};
-
+  var synth = window.speechSynthesis, voices = [], running = false, timer = null;
+  var $ = function(id){return document.getElementById(id)};
   function load(){
-    if(!synth) return;
-    var previous = $('voice').value;
-    voices = synth.getVoices() || [];
-    var sel = $('voice');
-    sel.innerHTML = '';
-
-    // List every voice so the dropdown is never empty when Marathi is unavailable.
-    // Put Marathi voices first, followed by all other installed browser voices.
-    var mr = voices.filter(function(v){ return /^mr(?:-|$)/i.test(v.lang); });
-    var others = voices.filter(function(v){ return !/^mr(?:-|$)/i.test(v.lang); });
-    var ordered = mr.concat(others);
-
-    ordered.forEach(function(v){
+    voices = synth ? synth.getVoices() : [];
+    var sel = $('voice'); sel.innerHTML = '';
+    var mr = voices.filter(function(v){return /^mr/i.test(v.lang)});
+    var list = mr;
+    list.forEach(function(v){
       var o = document.createElement('option');
-      o.value = v.name;
-      o.textContent = ( /^mr(?:-|$)/i.test(v.lang) ? 'मराठी — ' : '' ) + v.name + ' (' + v.lang + ')';
+      o.value = v.name; o.textContent = v.name + ' (' + v.lang + ')';
       sel.appendChild(o);
     });
-
-    if(previous && ordered.some(function(v){ return v.name === previous; })) {
-      sel.value = previous;
-    } else if(mr.length) {
-      sel.value = mr[0].name;
-    }
-
-    if(!voices.length){
-      $('msg').textContent = 'आवाजांची यादी लोड होत आहे. काही क्षण थांबा किंवा पेज पुन्हा उघडा.';
-    } else if(!mr.length){
-      $('msg').textContent = 'या डिव्हाइसवर मराठी आवाज उपलब्ध नाही. यादीत इतर आवाज दिसतील; मराठी उच्चारांसाठी डिव्हाइसच्या Text-to-speech सेटिंगमध्ये मराठी (भारत) आवाज डाउनलोड करा.';
-    } else if(!running) {
-      $('msg').textContent = 'मराठी आवाज तयार आहे. सतत ऐकण्यासाठी “वाजवा” दाबा.';
-    }
+    $('msg').textContent = mr.length ? '' : 'मराठी (mr-IN) आवाज सापडला नाही. फोन सेटिंग्ज → Text-to-speech मध्ये मराठी (भारत) आवाज डाउनलोड करा.';
   }
-
-  if(synth){
-    load();
-    if(typeof synth.addEventListener === 'function') synth.addEventListener('voiceschanged', load);
-    else synth.onvoiceschanged = load;
-    // Some browsers populate the voice list shortly after page initialization.
-    setTimeout(load, 250);
-    setTimeout(load, 1000);
-  } else {
-    $('msg').textContent = 'हा ब्राउझर आवाज वाजवण्यास समर्थन देत नाही. Chrome वापरून पहा.';
-  }
-
+  if(synth){ load(); synth.onvoiceschanged = load; }
+  else $('msg').textContent = 'हा ब्राउझर आवाज वाजवण्यास समर्थन देत नाही. Chrome वापरा.';
   ['rate','pitch','gap'].forEach(function(id){
     $(id).addEventListener('input', function(){
       $({rate:'rv',pitch:'pv',gap:'gv'}[id]).textContent = $(id).value;
     });
   });
-
-  function makeChunks(text){
-    return (text || '').replace(/\r/g, '')
-      .split(/(?<=[.!?।…])\s+|\n+/)
-      .map(function(s){ return s.trim(); })
-      .filter(function(s){ return s.length > 0; });
-  }
-
-  function speakChunk(chunks, index, token){
-    if(!running || token !== runId) return;
-    if(index >= chunks.length){
-      timer = setTimeout(function(){
-        if(!running || token !== runId) return;
-        speakChunk(chunks, 0, token);
-      }, Math.max(0, parseFloat($('gap').value) || 0) * 1000);
-      return;
-    }
-    var u = new SpeechSynthesisUtterance(chunks[index]);
-    var v = voices.filter(function(x){ return x.name === $('voice').value; })[0];
-    if(v){ u.voice = v; u.lang = v.lang; } else { u.lang = 'mr-IN'; }
-    u.rate = parseFloat($('rate').value) || 0.95;
-    u.pitch = parseFloat($('pitch').value) || 1.1;
+  function speak(){
+    if(!running) return;
+    var u = new SpeechSynthesisUtterance($('txt').value);
+    var v = voices.filter(function(x){return x.name === $('voice').value})[0];
+    if(v){ u.voice = v; u.lang = v.lang; } else u.lang = 'mr-IN';
+    u.rate = parseFloat($('rate').value);
+    u.pitch = parseFloat($('pitch').value);
     u.volume = 1;
     u.onend = function(){
-      if(!running || token !== runId) return;
-      timer = setTimeout(function(){ speakChunk(chunks, index + 1, token); }, 80);
+      if(!running) return;
+      timer = setTimeout(speak, parseFloat($('gap').value) * 1000);
     };
-    u.onerror = function(event){
-      if(!running || token !== runId) return;
-      if(event && (event.error === 'interrupted' || event.error === 'canceled')) return;
-      running = false;
-      clearTimeout(timer);
-      $('msg').textContent = 'आवाज वाजवताना अडचण आली. मराठी Text-to-speech आवाज तपासा आणि पुन्हा “वाजवा” दाबा.';
-    };
+    u.onerror = function(){ running = false; };
     synth.speak(u);
   }
-
   $('play').addEventListener('click', function(){
-    if(!synth){
-      $('msg').textContent = 'हा ब्राउझर आवाज वाजवण्यास समर्थन देत नाही.';
-      return;
-    }
-    var chunks = makeChunks($('txt').value);
-    if(!chunks.length){
-      $('msg').textContent = 'कृपया आधी आरोळीचा मजकूर लिहा.';
-      return;
-    }
-    runId++;
-    var token = runId;
-    running = true;
-    clearTimeout(timer);
-    synth.cancel();
-    $('msg').textContent = 'आरोळी सतत सुरू आहे. थांबवण्यासाठी “थांबवा” दाबा.';
-    timer = setTimeout(function(){ speakChunk(chunks, 0, token); }, 120);
+    if(!synth) return;
+    synth.cancel(); clearTimeout(timer); running = true; speak();
   });
-
   $('stop').addEventListener('click', function(){
-    running = false;
-    runId++;
-    clearTimeout(timer);
-    if(synth) synth.cancel();
-    $('msg').textContent = 'आरोळी थांबवली आहे.';
+    running = false; clearTimeout(timer); if(synth) synth.cancel();
   });
 })();
 </script>
