@@ -65,48 +65,105 @@ textarea{width:100%;min-height:150px;font:inherit;padding:10px;border-radius:8px
 </main>
 <script>
 (function(){
-  var synth = window.speechSynthesis, voices = [], running = false, timer = null;
-  var $ = function(id){return document.getElementById(id)};
+  var synth = window.speechSynthesis, voices = [], running = false, timer = null, runId = 0;
+  var $ = function(id){return document.getElementById(id);};
+
   function load(){
-    voices = synth ? synth.getVoices() : [];
-    var sel = $('voice'); sel.innerHTML = '';
-    var mr = voices.filter(function(v){return /^mr/i.test(v.lang)});
-    var list = mr;
-    list.forEach(function(v){
+    if(!synth) return;
+    var previous = $('voice').value;
+    voices = synth.getVoices() || [];
+    var sel = $('voice');
+    sel.innerHTML = '';
+    var mr = voices.filter(function(v){ return /^mr(?:-|$)/i.test(v.lang); });
+    mr.forEach(function(v){
       var o = document.createElement('option');
-      o.value = v.name; o.textContent = v.name + ' (' + v.lang + ')';
+      o.value = v.name;
+      o.textContent = v.name + ' (' + v.lang + ')';
       sel.appendChild(o);
     });
-    $('msg').textContent = mr.length ? '' : 'मराठी (mr-IN) आवाज सापडला नाही. फोन सेटिंग्ज → Text-to-speech मध्ये मराठी (भारत) आवाज डाउनलोड करा.';
+    if(previous && mr.some(function(v){ return v.name === previous; })) sel.value = previous;
+    if(!mr.length){
+      $('msg').textContent = 'मराठी आवाज सापडला नाही. फोन/कॉम्प्युटरच्या Text-to-speech सेटिंगमध्ये मराठी (भारत) आवाज डाउनलोड करा. ब्राउझरचा उपलब्ध आवाज वापरून प्रयत्न सुरू राहील.';
+    } else if(!running) {
+      $('msg').textContent = 'आवाज तयार आहे. सतत ऐकण्यासाठी “वाजवा” दाबा.';
+    }
   }
-  if(synth){ load(); synth.onvoiceschanged = load; }
-  else $('msg').textContent = 'हा ब्राउझर आवाज वाजवण्यास समर्थन देत नाही. Chrome वापरा.';
+
+  if(synth){
+    load();
+    if(typeof synth.addEventListener === 'function') synth.addEventListener('voiceschanged', load);
+    else synth.onvoiceschanged = load;
+  } else {
+    $('msg').textContent = 'हा ब्राउझर आवाज वाजवण्यास समर्थन देत नाही. Chrome वापरून पहा.';
+  }
+
   ['rate','pitch','gap'].forEach(function(id){
     $(id).addEventListener('input', function(){
       $({rate:'rv',pitch:'pv',gap:'gv'}[id]).textContent = $(id).value;
     });
   });
-  function speak(){
-    if(!running) return;
-    var u = new SpeechSynthesisUtterance($('txt').value);
-    var v = voices.filter(function(x){return x.name === $('voice').value})[0];
-    if(v){ u.voice = v; u.lang = v.lang; } else u.lang = 'mr-IN';
-    u.rate = parseFloat($('rate').value);
-    u.pitch = parseFloat($('pitch').value);
+
+  function makeChunks(text){
+    return (text || '').replace(/\r/g, '')
+      .split(/(?<=[.!?।…])\s+|\n+/)
+      .map(function(s){ return s.trim(); })
+      .filter(function(s){ return s.length > 0; });
+  }
+
+  function speakChunk(chunks, index, token){
+    if(!running || token !== runId) return;
+    if(index >= chunks.length){
+      timer = setTimeout(function(){
+        if(!running || token !== runId) return;
+        speakChunk(chunks, 0, token);
+      }, Math.max(0, parseFloat($('gap').value) || 0) * 1000);
+      return;
+    }
+    var u = new SpeechSynthesisUtterance(chunks[index]);
+    var v = voices.filter(function(x){ return x.name === $('voice').value; })[0];
+    if(v){ u.voice = v; u.lang = v.lang; } else { u.lang = 'mr-IN'; }
+    u.rate = parseFloat($('rate').value) || 0.95;
+    u.pitch = parseFloat($('pitch').value) || 1.1;
     u.volume = 1;
     u.onend = function(){
-      if(!running) return;
-      timer = setTimeout(speak, parseFloat($('gap').value) * 1000);
+      if(!running || token !== runId) return;
+      timer = setTimeout(function(){ speakChunk(chunks, index + 1, token); }, 80);
     };
-    u.onerror = function(){ running = false; };
+    u.onerror = function(event){
+      if(!running || token !== runId) return;
+      if(event && (event.error === 'interrupted' || event.error === 'canceled')) return;
+      running = false;
+      clearTimeout(timer);
+      $('msg').textContent = 'आवाज वाजवताना अडचण आली. मराठी Text-to-speech आवाज तपासा आणि पुन्हा “वाजवा” दाबा.';
+    };
     synth.speak(u);
   }
+
   $('play').addEventListener('click', function(){
-    if(!synth) return;
-    synth.cancel(); clearTimeout(timer); running = true; speak();
+    if(!synth){
+      $('msg').textContent = 'हा ब्राउझर आवाज वाजवण्यास समर्थन देत नाही.';
+      return;
+    }
+    var chunks = makeChunks($('txt').value);
+    if(!chunks.length){
+      $('msg').textContent = 'कृपया आधी आरोळीचा मजकूर लिहा.';
+      return;
+    }
+    runId++;
+    var token = runId;
+    running = true;
+    clearTimeout(timer);
+    synth.cancel();
+    $('msg').textContent = 'आरोळी सतत सुरू आहे. थांबवण्यासाठी “थांबवा” दाबा.';
+    timer = setTimeout(function(){ speakChunk(chunks, 0, token); }, 120);
   });
+
   $('stop').addEventListener('click', function(){
-    running = false; clearTimeout(timer); if(synth) synth.cancel();
+    running = false;
+    runId++;
+    clearTimeout(timer);
+    if(synth) synth.cancel();
+    $('msg').textContent = 'आरोळी थांबवली आहे.';
   });
 })();
 </script>
