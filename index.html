@@ -74,18 +74,32 @@ textarea{width:100%;min-height:150px;font:inherit;padding:10px;border-radius:8px
     voices = synth.getVoices() || [];
     var sel = $('voice');
     sel.innerHTML = '';
+
+    // List every voice so the dropdown is never empty when Marathi is unavailable.
+    // Put Marathi voices first, followed by all other installed browser voices.
     var mr = voices.filter(function(v){ return /^mr(?:-|$)/i.test(v.lang); });
-    mr.forEach(function(v){
+    var others = voices.filter(function(v){ return !/^mr(?:-|$)/i.test(v.lang); });
+    var ordered = mr.concat(others);
+
+    ordered.forEach(function(v){
       var o = document.createElement('option');
       o.value = v.name;
-      o.textContent = v.name + ' (' + v.lang + ')';
+      o.textContent = ( /^mr(?:-|$)/i.test(v.lang) ? 'मराठी — ' : '' ) + v.name + ' (' + v.lang + ')';
       sel.appendChild(o);
     });
-    if(previous && mr.some(function(v){ return v.name === previous; })) sel.value = previous;
-    if(!mr.length){
-      $('msg').textContent = 'मराठी आवाज सापडला नाही. फोन/कॉम्प्युटरच्या Text-to-speech सेटिंगमध्ये मराठी (भारत) आवाज डाउनलोड करा. ब्राउझरचा उपलब्ध आवाज वापरून प्रयत्न सुरू राहील.';
+
+    if(previous && ordered.some(function(v){ return v.name === previous; })) {
+      sel.value = previous;
+    } else if(mr.length) {
+      sel.value = mr[0].name;
+    }
+
+    if(!voices.length){
+      $('msg').textContent = 'आवाजांची यादी लोड होत आहे. काही क्षण थांबा किंवा पेज पुन्हा उघडा.';
+    } else if(!mr.length){
+      $('msg').textContent = 'या डिव्हाइसवर मराठी आवाज उपलब्ध नाही. यादीत इतर आवाज दिसतील; मराठी उच्चारांसाठी डिव्हाइसच्या Text-to-speech सेटिंगमध्ये मराठी (भारत) आवाज डाउनलोड करा.';
     } else if(!running) {
-      $('msg').textContent = 'आवाज तयार आहे. सतत ऐकण्यासाठी “वाजवा” दाबा.';
+      $('msg').textContent = 'मराठी आवाज तयार आहे. सतत ऐकण्यासाठी “वाजवा” दाबा.';
     }
   }
 
@@ -93,6 +107,9 @@ textarea{width:100%;min-height:150px;font:inherit;padding:10px;border-radius:8px
     load();
     if(typeof synth.addEventListener === 'function') synth.addEventListener('voiceschanged', load);
     else synth.onvoiceschanged = load;
+    // Some browsers populate the voice list shortly after page initialization.
+    setTimeout(load, 250);
+    setTimeout(load, 1000);
   } else {
     $('msg').textContent = 'हा ब्राउझर आवाज वाजवण्यास समर्थन देत नाही. Chrome वापरून पहा.';
   }
