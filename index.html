@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>सोलापूर आरोळी – तुळजापूर आगार</title>
+<style>
+:root{--bg:#fff6e0;--ink:#3a1208;--red:#b3261e;--card:#ffffff;--line:#e6c98a;--muted:#6b4a3a;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#241008;--ink:#ffe9c2;--red:#ff6b5e;--card:#34190e;--line:#6b3a22;--muted:#d9b48a;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#241008;--ink:#ffe9c2;--red:#ff6b5e;--card:#34190e;--line:#6b3a22;--muted:#d9b48a;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans Devanagari","Mukta",system-ui,sans-serif;line-height:1.6}
+main{max-width:560px;margin:0 auto;padding:20px 16px 40px}
+h1{font-size:1.6rem;margin:0 0 4px;color:var(--red)}
+p.sub{margin:0 0 18px;color:var(--muted)}
+.card{background:var(--card);border:2px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:14px}
+.card h2{font-size:1.05rem;margin:0 0 6px}
+.card p{margin:0 0 10px;font-size:1.05rem}
+button{font:inherit;font-weight:700;border:0;border-radius:10px;padding:12px 18px;background:var(--red);color:#fff;cursor:pointer;min-height:48px}
+button.alt{background:transparent;color:var(--ink);border:2px solid var(--line)}
+button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+label{display:block;font-size:.95rem;margin:10px 0 2px;color:var(--muted)}
+input[type=range]{width:100%}
+select{width:100%;padding:10px;font:inherit;border-radius:8px;border:2px solid var(--line);background:var(--card);color:var(--ink)}
+.note{font-size:.9rem;color:var(--muted)}
+textarea{width:100%;min-height:150px;font:inherit;padding:10px;border-radius:8px;border:2px solid var(--line);background:var(--card);color:var(--ink)}
+</style>
+</head>
+<body>
+<main>
+<h1>सोलापूर आरोळी</h1>
+<p class="sub">तुळजापूर आगार – धाराशिव विभाग</p>
+
+<div class="card">
+<h2>आरोळी मजकूर (बदलता येतो)</h2>
+<textarea id="txt">चला, सोलापूर... सोलापूर... सोलापूर! फक्त सोलापूर... सोलापूर... बसा, गाडी लागली आहे!
+महाराष्ट्र राज्य मार्ग परिवहन महामंडळ, तुळजापूर आगार, धाराशिव विभागाकडून सर्व यात्रेकरूंचे सहर्ष स्वागत... सहर्ष स्वागत!
+एसटीचा प्रवास, सुरक्षित प्रवास! वाट पाहीन पण एसटीनेच जाईन!
+खास यात्रेसाठी नवीन बसेस सोडल्या आहेत... सोलापूरला जादा गाड्या आहेत! चला सोलापूर... सोलापूर!
+कृपया यात्रा शेडकडे या... यात्रा शेडकडे या... सोलापूर, सोलापूर, चला सोलापूर!</textarea>
+
+<label for="voice">आवाज</label>
+<select id="voice"></select>
+<label for="rate">वेग: <span id="rv">0.95</span></label>
+<input id="rate" type="range" min="0.6" max="1.4" step="0.05" value="0.95">
+<label for="pitch">सूर: <span id="pv">1.1</span></label>
+<input id="pitch" type="range" min="0.6" max="1.6" step="0.05" value="1.1">
+<label for="gap">दोन वेळच्या मधला विराम (सेकंद): <span id="gv">3</span></label>
+<input id="gap" type="range" min="0" max="10" step="1" value="3">
+
+<div class="row" style="margin-top:14px">
+<button id="play">▶ वाजवा (सतत)</button>
+<button id="stop" class="alt">■ थांबवा</button>
+</div>
+<p class="note" id="msg"></p>
+</div>
+
+<div class="card">
+<h2>माईकसाठी</h2>
+<p class="note">फोन माईक/स्पीकरला जोडून आवाज वाढवा. मराठी आवाज दिसत नसल्यास फोनच्या सेटिंगमध्ये Google Text-to-speech मध्ये मराठी (भारत) आवाज डाउनलोड करा. रेकॉर्ड करायचे असल्यास फोनचे स्क्रीन रेकॉर्डर वापरून अंतर्गत आवाज रेकॉर्ड करता येतो.</p>
+</div>
+</main>
+<script>
+(function(){
+  var synth = window.speechSynthesis, voices = [], running = false, timer = null;
+  var $ = function(id){return document.getElementById(id)};
+  function load(){
+    voices = synth ? synth.getVoices() : [];
+    var sel = $('voice'); sel.innerHTML = '';
+    var mr = voices.filter(function(v){return /^mr/i.test(v.lang)});
+    var list = mr;
+    list.forEach(function(v){
+      var o = document.createElement('option');
+      o.value = v.name; o.textContent = v.name + ' (' + v.lang + ')';
+      sel.appendChild(o);
+    });
+    $('msg').textContent = mr.length ? '' : 'मराठी (mr-IN) आवाज सापडला नाही. फोन सेटिंग्ज → Text-to-speech मध्ये मराठी (भारत) आवाज डाउनलोड करा.';
+  }
+  if(synth){ load(); synth.onvoiceschanged = load; }
+  else $('msg').textContent = 'हा ब्राउझर आवाज वाजवण्यास समर्थन देत नाही. Chrome वापरा.';
+  ['rate','pitch','gap'].forEach(function(id){
+    $(id).addEventListener('input', function(){
+      $({rate:'rv',pitch:'pv',gap:'gv'}[id]).textContent = $(id).value;
+    });
+  });
+  function speak(){
+    if(!running) return;
+    var u = new SpeechSynthesisUtterance($('txt').value);
+    var v = voices.filter(function(x){return x.name === $('voice').value})[0];
+    if(v){ u.voice = v; u.lang = v.lang; } else u.lang = 'mr-IN';
+    u.rate = parseFloat($('rate').value);
+    u.pitch = parseFloat($('pitch').value);
+    u.volume = 1;
+    u.onend = function(){
+      if(!running) return;
+      timer = setTimeout(speak, parseFloat($('gap').value) * 1000);
+    };
+    u.onerror = function(){ running = false; };
+    synth.speak(u);
+  }
+  $('play').addEventListener('click', function(){
+    if(!synth) return;
+    synth.cancel(); clearTimeout(timer); running = true; speak();
+  });
+  $('stop').addEventListener('click', function(){
+    running = false; clearTimeout(timer); if(synth) synth.cancel();
+  });
+})();
+</script>
+</body>
+</html>
