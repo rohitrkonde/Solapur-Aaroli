@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="kn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ಸೊಲ್ಲಾಪುರ ಆರೋಳಿ – ತುಳಜಾಪುರ ಡಿಪೋ</title>
+<style>
+:root{--bg:#fff6e0;--ink:#3a1208;--red:#b3261e;--card:#ffffff;--line:#e6c98a;--muted:#6b4a3a;color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#241008;--ink:#ffe9c2;--red:#ff6b5e;--card:#34190e;--line:#6b3a22;--muted:#d9b48a;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans Kannada","Tunga",system-ui,sans-serif;line-height:1.7}
+main{max-width:560px;margin:0 auto;padding:20px 16px 40px}
+h1{font-size:1.6rem;margin:0 0 4px;color:var(--red)}
+p.sub{margin:0 0 18px;color:var(--muted)}
+.card{background:var(--card);border:2px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:14px}
+.card h2{font-size:1.05rem;margin:0 0 6px}
+.card p{margin:0 0 10px;font-size:1.05rem}
+button{font:inherit;font-weight:700;border:0;border-radius:10px;padding:12px 18px;background:var(--red);color:#fff;cursor:pointer;min-height:48px}
+button.alt{background:transparent;color:var(--ink);border:2px solid var(--line)}
+button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+label{display:block;font-size:.95rem;margin:10px 0 2px;color:var(--muted)}
+input[type=range]{width:100%}
+select{width:100%;padding:10px;font:inherit;border-radius:8px;border:2px solid var(--line);background:var(--card);color:var(--ink)}
+.note{font-size:.9rem;color:var(--muted)}
+textarea{width:100%;min-height:190px;font:inherit;padding:10px;border-radius:8px;border:2px solid var(--line);background:var(--card);color:var(--ink)}
+</style>
+</head>
+<body>
+<main>
+<h1>ಸೊಲ್ಲಾಪುರ ಆರೋಳಿ</h1>
+<p class="sub">ತುಳಜಾಪುರ ಡಿಪೋ – ಧಾರಾಶಿವ ವಿಭಾಗ</p>
+<div class="card">
+<h2>ಘೋಷಣೆಯ ಪಠ್ಯ (ಬದಲಾಯಿಸಬಹುದು)</h2>
+<textarea id="txt">ಬನ್ನಿ, ಸೊಲ್ಲಾಪುರ... ಸೊಲ್ಲಾಪುರ! ದಯವಿಟ್ಟು ಯಾತ್ರಾ ಶೆಡ್ ಕಡೆಗೆ ಬನ್ನಿ... ಯಾತ್ರಾ ಶೆಡ್ ಕಡೆಗೆ ಬನ್ನಿ... ಸೊಲ್ಲಾಪುರಕ್ಕೆ ಮಾತ್ರ... ಬನ್ನಿ, ಬಸ್ ಹೊರಡಲು ಸಿದ್ಧವಾಗಿದೆ!
+ಮಹಾರಾಷ್ಟ್ರ ರಾಜ್ಯ ರಸ್ತೆ ಸಾರಿಗೆ ಮಹಾಮಂಡಳ, ತುಳಜಾಪುರ ಡಿಪೋ, ಧಾರಾಶಿವ ವಿಭಾಗದ ವತಿಯಿಂದ ಎಲ್ಲಾ ಯಾತ್ರಿಕರಿಗೆ ಹಾರ್ದಿಕ ಸ್ವಾಗತ!
+ಎಸ್‌ಟಿ ಪ್ರಯಾಣ ಸುರಕ್ಷಿತ ಪ್ರಯಾಣ!
+ಕಾಯುತ್ತೇನೆ, ಆದರೆ ಎಸ್‌ಟಿಯಲ್ಲೇ ಪ್ರಯಾಣಿಸುತ್ತೇನೆ.
+ಯಾತ್ರೆಗಾಗಿ ಹೊಸ ಬಸ್‌ಗಳನ್ನು ಬಿಡಲಾಗಿದೆ... ಸೊಲ್ಲಾಪುರಕ್ಕೆ ಹೆಚ್ಚುವರಿ ಬಸ್‌ಗಳಿವೆ! ಬನ್ನಿ ಸೊಲ್ಲಾಪುರ... ಸೊಲ್ಲಾಪುರ!
+ದಯವಿಟ್ಟು ಯಾತ್ರಾ ಶೆಡ್ ಕಡೆಗೆ ಬನ್ನಿ... ಯಾತ್ರಾ ಶೆಡ್ ಕಡೆಗೆ ಬನ್ನಿ... ಸೊಲ್ಲಾಪುರ, ಸೊಲ್ಲಾಪುರ, ಬನ್ನಿ ಸೊಲ್ಲಾಪುರ!</textarea>
+<label for="voice">ಧ್ವನಿ / Voice</label>
+<select id="voice"></select>
+<label for="rate">ಮಾತಿನ ವೇಗ: <span id="rv">0.95</span></label>
+<input id="rate" type="range" min="0.6" max="1.4" step="0.05" value="0.95">
+<label for="pitch">ಧ್ವನಿಯ ಸ್ವರ: <span id="pv">1.1</span></label>
+<input id="pitch" type="range" min="0.6" max="1.6" step="0.05" value="1.1">
+<label for="gap">ಪ್ರತಿ ಘೋಷಣೆಯ ನಡುವಿನ ವಿರಾಮ (ಸೆಕೆಂಡು): <span id="gv">3</span></label>
+<input id="gap" type="range" min="0" max="10" step="1" value="3">
+<div class="row" style="margin-top:14px">
+<button id="play">▶ ಪ್ರಾರಂಭಿಸಿ (ನಿರಂತರ)</button>
+<button id="stop" class="alt">■ ನಿಲ್ಲಿಸಿ</button>
+</div>
+<p class="note" id="msg" aria-live="polite"></p>
+</div>
+<div class="card">
+<h2>ಮೈಕ್ / ಸ್ಪೀಕರ್‌ಗಾಗಿ</h2>
+<p class="note">ಫೋನ್ ಅನ್ನು ಮೈಕ್ ಅಥವಾ ಸ್ಪೀಕರ್‌ಗೆ ಸಂಪರ್ಕಿಸಿ ಧ್ವನಿಯನ್ನು ಹೆಚ್ಚಿಸಿ. ಕನ್ನಡ ಧ್ವನಿ ಕಾಣದಿದ್ದರೆ, ನಿಮ್ಮ ಸಾಧನದ Text-to-speech ಸೆಟ್ಟಿಂಗ್‌ಗಳಲ್ಲಿ Kannada (India) ಧ್ವನಿಯನ್ನು ಸ್ಥಾಪಿಸಿ. ಧ್ವನಿಯನ್ನು ಉಳಿಸಲು ಫೋನ್‌ನ ಸ್ಕ್ರೀನ್ ರೆಕಾರ್ಡರ್ ಬಳಸಬಹುದು.</p>
+</div>
+</main>
+<script>
+(function(){
+  var synth = window.speechSynthesis, voices = [], running = false, timer = null, runId = 0;
+  var $ = function(id){return document.getElementById(id)};
+  function load(){
+    if(!synth) return;
+    var previous = $('voice').value;
+    voices = synth.getVoices() || [];
+    var sel = $('voice'); sel.innerHTML = '';
+    var kn = voices.filter(function(v){return /^kn(?:-|$)/i.test(v.lang)});
+    var others = voices.filter(function(v){return !/^kn(?:-|$)/i.test(v.lang)});
+    kn.concat(others).forEach(function(v){
+      var o = document.createElement('option');
+      o.value = v.name;
+      o.textContent = (/^kn(?:-|$)/i.test(v.lang) ? 'ಕನ್ನಡ — ' : '') + v.name + ' (' + v.lang + ')';
+      sel.appendChild(o);
+    });
+    if(previous && voices.some(function(v){return v.name === previous})) sel.value = previous;
+    else if(kn.length) sel.value = kn[0].name;
+    if(!voices.length) $('msg').textContent = 'ಈ ಬ್ರೌಸರ್‌ನಲ್ಲಿ ಧ್ವನಿಗಳು ಇನ್ನೂ ಲಭ್ಯವಿಲ್ಲ. Chrome ತೆರೆಯಿರಿ ಅಥವಾ ಸಾಧನದ Text-to-speech ಸೆಟ್ಟಿಂಗ್‌ಗಳನ್ನು ಪರಿಶೀಲಿಸಿ.';
+    else if(!kn.length) $('msg').textContent = 'ಕನ್ನಡ ಧ್ವನಿ ಲಭ್ಯವಿಲ್ಲ. ಪಟ್ಟಿಯಲ್ಲಿ ಇತರ ಧ್ವನಿಗಳಿವೆ; ಉತ್ತಮ ಫಲಿತಾಂಶಕ್ಕಾಗಿ ಸಾಧನದಲ್ಲಿ Kannada (India) Text-to-speech ಧ್ವನಿಯನ್ನು ಸ್ಥಾಪಿಸಿ.';
+    else $('msg').textContent = 'ಕನ್ನಡ ಧ್ವನಿ ಸಿದ್ಧವಾಗಿದೆ.';
+  }
+  if(synth){load(); synth.onvoiceschanged = load; setTimeout(load,250); setTimeout(load,1000);}
+  else $('msg').textContent = 'ಈ ಬ್ರೌಸರ್ ಧ್ವನಿ ಓದುವಿಕೆಯನ್ನು ಬೆಂಬಲಿಸುವುದಿಲ್ಲ. Chrome ಬಳಸಿ.';
+  ['rate','pitch','gap'].forEach(function(id){
+    $(id).addEventListener('input',function(){$({rate:'rv',pitch:'pv',gap:'gv'}[id]).textContent=$(id).value;});
+  });
+  function speak(id){
+    if(!running || id !== runId) return;
+    var u = new SpeechSynthesisUtterance($('txt').value);
+    var selected = voices.filter(function(v){return v.name === $('voice').value})[0];
+    if(selected){u.voice=selected;u.lang=selected.lang;}
+    else u.lang='kn-IN';
+    u.rate=parseFloat($('rate').value); u.pitch=parseFloat($('pitch').value); u.volume=1;
+    u.onend=function(){if(!running || id !== runId)return; timer=setTimeout(function(){speak(id);},parseFloat($('gap').value)*1000);};
+    u.onerror=function(){if(id===runId){running=false;$('msg').textContent='ಧ್ವನಿ ಓದುವಲ್ಲಿ ಸಮಸ್ಯೆ ಉಂಟಾಗಿದೆ. ಬೇರೆ ಧ್ವನಿಯನ್ನು ಆಯ್ಕೆಮಾಡಿ ಪ್ರಯತ್ನಿಸಿ.';}};
+    synth.speak(u);
+  }
+  $('play').addEventListener('click',function(){
+    if(!synth)return;
+    runId++; var id=runId; synth.cancel(); clearTimeout(timer); running=true;
+    $('msg').textContent='ಘೋಷಣೆ ಪ್ರಾರಂಭವಾಗಿದೆ.';
+    setTimeout(function(){speak(id);},120);
+  });
+  $('stop').addEventListener('click',function(){
+    running=false;runId++;clearTimeout(timer);if(synth)synth.cancel();$('msg').textContent='ಘೋಷಣೆ ನಿಲ್ಲಿಸಲಾಗಿದೆ.';
+  });
+})();
+</script>
+</body>
+</html>
