@@ -135,10 +135,12 @@ textarea{width:100%;min-height:150px;font:inherit;padding:10px;border-radius:8px
   }
   $('play').addEventListener('click', function(){
     if(!synth) return;
+    recordedAudio.pause();
     synth.cancel(); clearTimeout(timer); running = true; speak();
   });
   $('stop').addEventListener('click', function(){
     running = false; clearTimeout(timer); if(synth) synth.cancel();
+    recordedAudio.pause();
   });
 })();
 </script>
