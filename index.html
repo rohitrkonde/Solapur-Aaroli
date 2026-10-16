@@ -58,6 +58,21 @@ textarea{width:100%;min-height:150px;font:inherit;padding:10px;border-radius:8px
 <p class="note" id="msg"></p>
 </div>
 
+
+<div class="card">
+<h2>रेकॉर्ड केलेली आरोळी (M4A)</h2>
+<p class="note">तुमची रेकॉर्ड केलेली आरोळी सतत ऐकण्यासाठी खालील बटण वापरा. पुन्हा पुन्हा वाजवण्यासाठी Loop सुरू ठेवा.</p>
+<audio id="recordedAudio" controls loop preload="metadata" style="width:100%;margin:8px 0">
+  <source src="announcement.m4a" type="audio/mp4">
+  तुमचा ब्राउझर हा ऑडिओ प्ले करू शकत नाही.
+</audio>
+<div class="row" style="margin-top:10px">
+<button id="recordPlay">▶ रेकॉर्डिंग सुरू करा</button>
+<button id="recordStop" class="alt">■ रेकॉर्डिंग थांबवा</button>
+</div>
+<p class="note" id="audioMsg">रेकॉर्डिंगची फाइल announcement.m4a या नावाने वेबसाइटसोबत अपलोड करा.</p>
+</div>
+
 <div class="card">
 <h2>माईकसाठी</h2>
 <p class="note">फोन माईक/स्पीकरला जोडून आवाज वाढवा. मराठी आवाज दिसत नसल्यास फोनच्या सेटिंगमध्ये Google Text-to-speech मध्ये मराठी (भारत) आवाज डाउनलोड करा. रेकॉर्ड करायचे असल्यास फोनचे स्क्रीन रेकॉर्डर वापरून अंतर्गत आवाज रेकॉर्ड करता येतो.</p>
@@ -81,6 +96,23 @@ textarea{width:100%;min-height:150px;font:inherit;padding:10px;border-radius:8px
   }
   if(synth){ load(); synth.onvoiceschanged = load; }
   else $('msg').textContent = 'हा ब्राउझर आवाज वाजवण्यास समर्थन देत नाही. Chrome वापरा.';
+  var recordedAudio = $('recordedAudio');
+  $('recordPlay').addEventListener('click', function(){
+    if(synth) { running = false; clearTimeout(timer); synth.cancel(); }
+    recordedAudio.play().then(function(){
+      $('audioMsg').textContent = 'रेकॉर्ड केलेली आरोळी सतत वाजत आहे.';
+    }).catch(function(){
+      $('audioMsg').textContent = 'ऑडिओ फाइल सापडत नाही किंवा प्ले होऊ शकत नाही. announcement.m4a फाइल GitHub वर अपलोड केली आहे का ते तपासा.';
+    });
+  });
+  $('recordStop').addEventListener('click', function(){
+    recordedAudio.pause();
+    recordedAudio.currentTime = 0;
+    $('audioMsg').textContent = 'रेकॉर्डिंग थांबवले.';
+  });
+  recordedAudio.addEventListener('error', function(){
+    $('audioMsg').textContent = 'ऑडिओ फाइल अजून उपलब्ध नाही. announcement.m4a फाइल GitHub repository मध्ये अपलोड करा.';
+  });
   ['rate','pitch','gap'].forEach(function(id){
     $(id).addEventListener('input', function(){
       $({rate:'rv',pitch:'pv',gap:'gv'}[id]).textContent = $(id).value;
